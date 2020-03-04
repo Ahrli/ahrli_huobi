@@ -170,7 +170,7 @@ class RequestClient(object):
         """
         return call_sync(self.request_impl.get_withdraw_history(  size))
 
-    def get_deposit_history(self, currency: 'str', from_id: 'int', size: 'int', direct=None) -> list:
+    def get_deposit_history(self,   size: 'int', direct=None) -> list:
         """
         Get the deposit records of an account.
 
@@ -180,7 +180,7 @@ class RequestClient(object):
         :param direct: "prev" is order by asc, "next" is order by desc, default as "prev"
         :return: The list of deposit records.
         """
-        return call_sync(self.request_impl.get_deposit_history(currency, from_id, size, direct))
+        return call_sync(self.request_impl.get_deposit_history(  size, direct))
 
     def transfer(self, symbol: 'str', from_account: 'AccountType', to_account: 'AccountType', currency: 'str',
                  amount: 'float') -> int:

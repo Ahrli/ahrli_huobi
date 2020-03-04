@@ -282,14 +282,10 @@ class RestApiRequestImpl(object):
         request.json_parser = parse
         return request
 
-    def get_deposit_history(self, currency, from_id, size, direct):
-        check_should_not_none(from_id, "from_id")
-        check_should_not_none(size, "size")
+    def get_deposit_history(self,   size, direct):
 
         builder = UrlParamsBuilder()
-        builder.put_url("currency", currency)
         builder.put_url("type", DepositWithdraw.DEPOSIT)
-        builder.put_url("from", from_id)
         builder.put_url("size", size)
         builder.put_url("direct", direct)
         request = self.__create_request_by_get_with_signature("/v1/query/deposit-withdraw", builder)
