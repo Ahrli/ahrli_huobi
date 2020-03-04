@@ -249,9 +249,7 @@ class RestApiRequestImpl(object):
         request.json_parser = parse
         return request
 
-    def get_withdraw_history(self, currency, from_id, size, direct):
-        check_should_not_none(from_id, "from_id")
-        check_should_not_none(size, "size")
+    def get_withdraw_history(self,  size):
 
         builder = UrlParamsBuilder()
         # builder.put_url("currency", currency)
