@@ -254,11 +254,11 @@ class RestApiRequestImpl(object):
         check_should_not_none(size, "size")
 
         builder = UrlParamsBuilder()
-        builder.put_url("currency", currency)
+        # builder.put_url("currency", currency)
         builder.put_url("type", DepositWithdraw.WITHDRAW)
-        builder.put_url("from", from_id)
-        builder.put_url("size", size)
-        builder.put_url("direct", direct)
+        # builder.put_url("from", from_id)
+        # builder.put_url("size", size)
+        # builder.put_url("direct", direct)
         request = self.__create_request_by_get_with_signature("/v1/query/deposit-withdraw", builder)
 
         def parse(json_wrapper):
