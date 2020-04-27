@@ -158,7 +158,7 @@ class RequestClient(object):
         """
         return call_sync(self.request_impl.get_best_quote(symbol))
 
-    def get_withdraw_history(self,   size: 'int', direct=None) -> list:
+    def get_withdraw_history(self, currency: 'str', from_id: 'int', size: 'int', direct=None) -> list:
         """
         Get the withdraw records of an account.
 
@@ -168,9 +168,9 @@ class RequestClient(object):
         :param direct: "prev" is order by asc, "next" is order by desc, default as "prev"
         :return: The list of withdraw records.
         """
-        return call_sync(self.request_impl.get_withdraw_history(  size))
+        return call_sync(self.request_impl.get_withdraw_history(currency, from_id, size, direct))
 
-    def get_deposit_history(self,   size: 'int', direct=None) -> list:
+    def get_deposit_history(self, currency: 'str', from_id: 'int', size: 'int', direct=None) -> list:
         """
         Get the deposit records of an account.
 
@@ -180,7 +180,7 @@ class RequestClient(object):
         :param direct: "prev" is order by asc, "next" is order by desc, default as "prev"
         :return: The list of deposit records.
         """
-        return call_sync(self.request_impl.get_deposit_history(  size, direct))
+        return call_sync(self.request_impl.get_deposit_history(currency, from_id, size, direct))
 
     def transfer(self, symbol: 'str', from_account: 'AccountType', to_account: 'AccountType', currency: 'str',
                  amount: 'float') -> int:
@@ -296,6 +296,23 @@ class RequestClient(object):
         """
         return call_sync(self.request_impl.create_order(symbol, account_type, order_type, amount, price, client_order_id, stop_price, operator))
 
+    def batch_create_order(self, order_config_list) -> int:
+        """
+        Make an order in huobi.
+        :param order_config_list: order config list, it can batch create orders, and each order config check as below
+            : items as below
+                :param symbol: The symbol, like "btcusdt". (mandatory)
+                :param account_type: Account type. (mandatory)
+                :param order_type: The order type. (mandatory)
+                :param amount: The amount to buy (quote currency) or to sell (base currency). (mandatory)
+                :param price: The limit price of limit order, only needed for limit order. (mandatory for buy-limit, sell-limit, buy-limit-maker and sell-limit-maker)
+                :param client_order_id: unique Id which is user defined and must be unique in recent 24 hours
+                :param stop_price: Price for auto sell to get the max benefit
+                :param operator: the condition for stop_price, value can be "gte" or "lte",  gte – greater than and equal (>=), lte – less than and equal (<=)
+        :return: The order id.
+        """
+        return call_sync(self.request_impl.batch_create_order(order_config_list))
+
     def get_open_orders(self, symbol: 'str', account_type: 'AccountType', side: 'OrderSide' = None,
                         size: 'int' = 100, from_id=None, direct=None) -> list:
         """
@@ -321,15 +338,15 @@ class RequestClient(object):
         """
         call_sync(self.request_impl.cancel_order(symbol, order_id))
 
-    def cancel_orders(self, symbol: 'str', order_id_list: 'list') -> None:
+    def cancel_orders(self, order_id_list: 'list', client_order_id_list: 'list') -> None:
         """
         Submit cancel request for cancelling multiple orders.
 
-        :param symbol: The symbol, like "btcusdt". (mandatory)
-        :param order_id_list: The list of order id. the max size is 50. (mandatory)
+        :param order_id_list: The list of order id. the max size is 50. (optional, but order_id_list or client_order_id_list only one is mandatory)
+        :param client_order_id_list: The list of client order id. the max size is 50. (optional, but order_id_list or client_order_id_list only one is mandatory)
         :return: No return
         """
-        call_sync(self.request_impl.cancel_orders(symbol, order_id_list))
+        return call_sync(self.request_impl.cancel_orders(order_id_list, client_order_id_list))
 
     def cancel_open_orders(self, symbol: 'str', account_type: 'AccountType', side: 'OrderSide' = None,
                            size: 'int' = None) -> BatchCancelResult:
@@ -424,7 +441,7 @@ class RequestClient(object):
 
     def get_historical_orders(self, symbol: 'str', order_state: 'OrderState', order_type: 'OrderType' = None,
                               start_date: 'str' = None, end_date: 'str' = None, start_id: 'int' = None,
-                              size: 'int' = None) -> list:
+                              size: 'int' = None, start_time:'int'=None, end_time:'int'=None) -> list:
         """
         Get historical orders.
 
@@ -435,11 +452,13 @@ class RequestClient(object):
         :param end_date: End date in format yyyy-mm-dd. (optional)
         :param start_id: Start id. (optional)
         :param size: The size of orders. (optional)
+        :param start_time: millseconds time. (optional)
+        :param end_time: millseconds time and (end_time - start_time) must less than 48 hours. (optional)
         :return:
         """
         return call_sync(
             self.request_impl.get_historical_orders(symbol, order_state, order_type, start_date, end_date, start_id,
-                                                    size))
+                                                    size, start_time, end_time))
 
     def transfer_between_parent_and_sub(self, sub_uid: 'int', currency: 'str', amount: 'float',
                                         transfer_type: 'TransferMasterType'):
@@ -534,6 +553,33 @@ class RequestClient(object):
         """
         return call_sync(self.request_impl.get_fee_rate(symbols))
 
+    def get_margin_loan_info(self, symbols: 'str'=None) -> list:
+        """
+        The request of get margin loan info, can return currency loan info list.
+
+        :param symbols: The symbol, like "btcusdt,htusdt". (optional)
+        :return: The cross margin loan info.
+        """
+        return call_sync(self.request_impl.get_margin_loan_info(symbols))
+
+    def get_cross_margin_loan_info(self) -> list:
+        """
+        The request of currency loan info list.
+
+        :return: The cross margin loan info list.
+        """
+        return call_sync(self.request_impl.get_cross_margin_loan_info())
+
+    def get_reference_transact_fee_rate(self, symbols: 'str') -> list:
+        """
+        The request of get transact fee rate list.
+
+        :param symbols: The symbol, like "btcusdt,htusdt". (mandatory)
+        :return: The transact fee rate list.
+        """
+        return call_sync(self.request_impl.get_reference_transact_fee_rate(symbols))
+
+
     def transfer_between_futures_and_pro(self, currency: 'str', amount: 'float',
                                         transfer_type: 'TransferFuturesPro')-> int:
         """
@@ -547,7 +593,7 @@ class RequestClient(object):
         """
         return call_sync(self.request_impl.transfer_between_futures_and_pro(currency, amount, transfer_type))
 
-    def get_order_recent_48hour(self, symbol=None, start_time=None, end_time=None, size=None, direct=None)-> list:
+    def get_order_in_recent_48hour(self, symbol=None, start_time=None, end_time=None, size=None, direct=None)-> list:
         """
         Transfer Asset between Futures and Contract.
 
@@ -558,7 +604,7 @@ class RequestClient(object):
         :param size: The type of transfer, need be "futures-to-pro" or "pro-to-futures" (mandatory)
         :return: The Order list.
         """
-        return call_sync(self.request_impl.get_order_recent_48hour(symbol, start_time, end_time, size, direct))
+        return call_sync(self.request_impl.get_order_in_recent_48hour(symbol, start_time, end_time, size, direct))
 
 
     def get_reference_currencies(self, currency:'str'=None, is_authorized_user:'bool' =None) ->list:
@@ -670,21 +716,21 @@ class RequestClient(object):
 
     def get_cross_margin_loan_orders(self, currency:'str'=None, state:'str'=None,
                                      start_date:'str'=None, end_date:'str'=None,
-                                     from_id:'int'=None, size:'int'=None, direct:'str'=None) -> list:
+                                     from_id:'int'=None, size:'int'=None, direct:'str'=None, sub_uid:'int'=None) -> list:
         """
         get cross margin loan orders
 
         :return: return list.
         """
-        return call_sync(self.request_impl.get_cross_margin_loan_orders(currency, state, start_date, end_date, from_id, size, direct))
+        return call_sync(self.request_impl.get_cross_margin_loan_orders(currency, state, start_date, end_date, from_id, size, direct, sub_uid))
 
-    def get_cross_margin_account_balance(self):
+    def get_cross_margin_account_balance(self, sub_uid:'int'=None):
         """
         get cross margin account balance
 
         :return: cross-margin account.
         """
-        return call_sync(self.request_impl.get_cross_margin_account_balance())
+        return call_sync(self.request_impl.get_cross_margin_account_balance(sub_uid))
 
     def get_account_history(self, account_id:'int', currency:'str'=None,
                             transact_types:'str'=None, start_time:'int'=None, end_time:'int'=None,
@@ -697,3 +743,38 @@ class RequestClient(object):
         return call_sync(self.request_impl.get_account_history(account_id, currency,
                             transact_types, start_time, end_time,
                             sort, size))
+
+
+    def sub_uid_management(self, sub_uid:'int', action:'str'):
+        """
+        get account change record
+
+        :return: account change record list.
+        """
+        return call_sync(self.request_impl.sub_user_management(sub_uid, action))
+
+    def get_market_tickers(self) -> list:
+        """
+        get market tickers
+
+        :return: market ticker list.
+        """
+        return call_sync(self.request_impl.get_market_tickers())
+
+    def get_account_ledger(self, account_id:'int', currency:'str'=None, transact_types:'str'=None,
+                           start_time:'int'=None, end_time:'int'=None, sort:'str'=None, limit:'int'=None,
+                           from_id:'int'=None) -> list:
+        """
+        get account ledger
+
+        :return: account ledger list.
+        """
+        return call_sync(self.request_impl.get_account_ledger(account_id, currency, transact_types, start_time, end_time, sort, limit, from_id))
+
+    def get_system_status(self) -> str:
+        """
+        get system status
+
+        :return: system status.
+        """
+        return call_sync(self.request_impl.get_system_status(), is_checked=True)

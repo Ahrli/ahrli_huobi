@@ -35,6 +35,10 @@ class OrderType:
     SELL_LIMIT_MAKER = "sell-limit-maker"
     BUY_STOP_LIMIT = "buy-stop-limit"
     SELL_STOP_LIMIT = "sell-stop-limit"
+    BUY_LIMIT_FOK = "buy-limit-fok"
+    SELL_LIMIT_FOK = "sell-limit-fok"
+    BUY_STOP_LIMIT_FOK = "buy-stop-limit-fok"
+    SELL_STOP_LIMIT_FOK = "sell-stop-limit-fok"
     INVALID = None
 
 
@@ -79,6 +83,7 @@ class WithdrawState:
     CONFIRMERROR = "confirm-error"
     REPEALED = "repealed"
     INVALID = None
+
 
 class DepositWithdraw:
     DEPOSIT = "deposit"
@@ -179,28 +184,34 @@ class BalanceMode:
     TOTAL = "1"
     INVALID = None
 
+
 class AccountBalanceMode:
     BALANCE = "0"
     TOTAL = "1"
     INVALID = None
+
 
 class OperateMode:
     PING = "ping"
     PONG = "pong"
     INVALID = None
 
+
 class QueryDirection:
     PREV = "prev"
     NEXT = "next"
     INVALID = None
 
+
 class TransferFuturesPro:
     TO_PRO = "futures-to-pro"
-    TO_FETURES ="pro-to-futures"
+    TO_FUTURES = "pro-to-futures"
+
 
 class MatchRole:
     MAKER = "maker"
     TAKER = "taker"
+
 
 class DepthStep:
     STEP0 = "step0"
@@ -223,15 +234,18 @@ class ChainDepositStatus:
     PROHIBITED = "prohibited"
     INVALID = None
 
+
 class ChainWithdrawStatus:
     ALLOWED = "allowed"
     PROHIBITED = "prohibited"
     INVALID = None
 
+
 class InstrumentStatus:
     NORMAL = "normal"
     DELISTED = "delisted"
     INVALID = None
+
 
 class AccountChangeType:
     ORDER_PLACE = "order-place"
@@ -246,7 +260,21 @@ class AccountChangeType:
     OTHER = "other"
     INVALID = None
 
+
 class FeeDeductType:
     DEDUCT_BY_HT = "ht"
     DEDUCT_BY_POINT = "point"
+    INVALID = None
+
+
+class SubUidState:
+    UNLOCK = "unlock"
+    LOCK = "lock"
+    INVALID = None
+
+
+class OrderUpdateEventType:
+    CREATION = "creation"
+    TRADE = "trade"
+    CANCELLATION = "cancellation"
     INVALID = None

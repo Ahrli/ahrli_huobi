@@ -14,7 +14,7 @@ class Order:
         finished_timestamp: The UNIX formatted timestamp in UTC when the order was changed to a final state. This is not the time the order is matched.
         order_id: The order id.
         symbol: The symbol, like "btcusdt".
-        order_type: The order type, possible values are: buy-market, sell-market, buy-limit, sell-limit, buy-ioc, sell-ioc, buy-limit-maker, sell-limit-maker.
+        order_type: The order type, possible values are: buy-market, sell-market, buy-limit, sell-limit, buy-ioc, sell-ioc, buy-limit-maker, sell-limit-maker, buy-limit-fok, sell-limit-fok, buy-stop-limit-fok, sell-stop-limit-fok.
         filled_amount: The amount which has been filled.
         filled_cash_amount: The filled total in quote currency.
         filled_fees: The transaction fee paid so far.
@@ -39,6 +39,7 @@ class Order:
         self.filled_fees = 0.0
         self.source = OrderSource.INVALID
         self.state = OrderState.INVALID
+        self.client_order_id = ""
         self.stop_price = ""
         self.next_time = 0
         self.operator=""
@@ -60,6 +61,7 @@ class Order:
         order.account_type = account_type
         order.source = json_data.get_string("source")
         order.state = json_data.get_string("state")
+        order.client_order_id = json_data.get_string_or_default("client-order-id", "")
         order.stop_price = json_data.get_float_or_default("stop-price", 0.0)
         order.operator = json_data.get_string_or_default("operator", "")
         order.next_time = json_data.get_string_or_default("next-time", "")
@@ -81,6 +83,7 @@ class Order:
         PrintBasic.print_basic(self.account_type, format_data + "Account Type")
         PrintBasic.print_basic(self.source, format_data + "Order Source")
         PrintBasic.print_basic(self.state, format_data + "Order State")
+        PrintBasic.print_basic(self.client_order_id, format_data + "Client Order Id")
         PrintBasic.print_basic(self.stop_price, format_data + "Stop Price")
         PrintBasic.print_basic(self.operator, format_data + "Operator")
         PrintBasic.print_basic(self.next_time, format_data + "Next Time")
